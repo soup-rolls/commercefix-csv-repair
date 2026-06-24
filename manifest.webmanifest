@@ -1,0 +1,9 @@
+{
+  "name": "CommerceFix",
+  "short_name": "CommerceFix",
+  "description": "Shopify CSV Repair File Generator",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#eef1ed",
+  "theme_color": "#1f6b55"
+}
