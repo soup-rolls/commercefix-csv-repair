@@ -1,0 +1,24 @@
+﻿{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "baseUrl": ".",
+    "paths": {
+      "jszip": ["node_modules/jszip"],
+      "nodemailer": ["node_modules/nodemailer"],
+      "papaparse": ["node_modules/papaparse"]
+    },
+    "types": ["node"],
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "noEmit": true
+  },
+  "include": [
+    "02_repair_engine/src/**/*.ts",
+    "04_payment_delivery/server/**/*.ts"
+  ]
+}

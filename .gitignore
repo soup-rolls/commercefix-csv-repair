@@ -1,0 +1,6 @@
+backend/node_modules/
+backend/.commercefix-api-dry-run/
+backend/.commercefix-dry-run/
+backend/.env
+backend/.env.*
+!backend/.env.example

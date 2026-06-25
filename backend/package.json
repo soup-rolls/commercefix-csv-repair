@@ -1,0 +1,26 @@
+{
+  "name": "commercefix-backend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx ./04_payment_delivery/server/httpServer.ts",
+    "dev": "tsx ./04_payment_delivery/server/httpServer.ts",
+    "check": "tsc -p tsconfig.json",
+    "dry-run": "tsx ./04_payment_delivery/server/httpServerDryRun.ts",
+    "imap:check": "tsx ./04_payment_delivery/server/checkImap.ts"
+  },
+  "dependencies": {
+    "jszip": "^3.10.1",
+    "nodemailer": "^9.0.1",
+    "papaparse": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^6.4.17",
+    "@types/papaparse": "^5.3.15",
+    "tsx": "^4.20.6",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": "20.x"
+  }
+}

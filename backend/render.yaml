@@ -1,0 +1,78 @@
+﻿services:
+  - type: web
+    name: commercefix-backend
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: npm ci
+    startCommand: npm run start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: PAYPAL_ENV
+        value: sandbox
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
+      - key: PAYPAL_CURRENCY
+        value: USD
+      - key: PAYPAL_LITE_PRICE
+        value: "19.00"
+      - key: PAYPAL_PRO_PRICE
+        value: "39.00"
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_SECURE
+        value: "false"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_APP_PASSWORD
+        sync: false
+      - key: GMAIL_PROXY_URL
+        value: auto
+      - key: DELIVERY_FROM
+        sync: false
+      - key: DELIVERY_REPLY_TO
+        sync: false
+      - key: ORDER_STORAGE_DIR
+        value: /var/data/orders
+      - key: CSV_STORAGE_DIR
+        value: /var/data/uploads
+      - key: PACKAGE_STORAGE_DIR
+        value: /var/data/packages
+      - key: DOWNLOAD_BASE_URL
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: COMMERCEFIX_SERVER_PORT
+        value: "10000"
+      - key: IMAP_HOST
+        value: imap.gmail.com
+      - key: IMAP_PORT
+        value: "993"
+      - key: IMAP_SECURE
+        value: "true"
+      - key: IMAP_USER
+        sync: false
+      - key: IMAP_APP_PASSWORD
+        sync: false
+      - key: IMAP_MAILBOX
+        value: INBOX
+      - key: IMAP_SEARCH_QUERY
+        value: 'SUBJECT "CommerceFix CSV Request"'
+      - key: IMAP_MAX_MESSAGES
+        value: "10"
+      - key: IMAP_DEFAULT_PLAN
+        value: Repair Pro
+      - key: IMAP_CHECKPOINT_PATH
+        value: /var/data/imap-checkpoint.json
