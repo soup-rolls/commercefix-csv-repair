@@ -26,6 +26,8 @@ export function loadAutomationConfig(env: Record<string, string | undefined> = p
     packageStorageDir: writableDir(env.PACKAGE_STORAGE_DIR ?? "D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/packages", "packages"),
     downloadBaseUrl: env.DOWNLOAD_BASE_URL,
     packageRetentionHours: Number(env.PACKAGE_RETENTION_HOURS ?? 72),
+    maxUploadBytes: Number(env.MAX_UPLOAD_BYTES ?? 10 * 1024 * 1024),
+    allowedOrigins: resolveAllowedOrigins(env),
     publicBaseUrl: env.PUBLIC_BASE_URL ?? env.SITE_URL ?? "http://127.0.0.1:8787",
     serverPort: Number(env.PORT ?? env.COMMERCEFIX_SERVER_PORT ?? 8787),
     imapHost: env.IMAP_HOST ?? "imap.gmail.com",
@@ -42,6 +44,19 @@ export function loadAutomationConfig(env: Record<string, string | undefined> = p
       "imap-checkpoint.json"
     )
   };
+}
+
+function resolveAllowedOrigins(env: Record<string, string | undefined>) {
+  const explicit = env.ALLOWED_ORIGINS?.split(",").map((item) => item.trim()).filter(Boolean) ?? [];
+  const defaults = [
+    env.PUBLIC_SITE_ORIGIN,
+    env.SITE_URL,
+    "https://soup-rolls.github.io",
+    "http://127.0.0.1:5173",
+    "http://localhost:5173"
+  ].filter((item): item is string => Boolean(item));
+
+  return Array.from(new Set([...explicit, ...defaults].map((item) => item.replace(/\/$/, ""))));
 }
 
 function resolvePayPalEnv(env: Record<string, string | undefined>): "live" | "sandbox" {

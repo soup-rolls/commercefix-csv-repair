@@ -121,6 +121,8 @@ export type AutomationConfig = {
   packageStorageDir: string;
   downloadBaseUrl?: string;
   packageRetentionHours: number;
+  maxUploadBytes: number;
+  allowedOrigins: string[];
   publicBaseUrl: string;
   serverPort: number;
   imapHost: string;

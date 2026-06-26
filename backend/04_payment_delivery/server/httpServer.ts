@@ -19,7 +19,7 @@ const PAID_FILES = [
 
 const server = createServer(async (request, response) => {
   try {
-    setCors(response);
+    setCors(request, response);
     if (request.method === "OPTIONS") return sendJson(response, 204, {});
 
     const url = new URL(request.url ?? "/", config.publicBaseUrl);
@@ -37,6 +37,8 @@ const server = createServer(async (request, response) => {
         paypal_client_secret_length: config.paypalClientSecret.length,
         paypal_webhook_id_configured: Boolean(config.paypalWebhookId),
         package_retention_hours: config.packageRetentionHours,
+        max_upload_bytes: config.maxUploadBytes,
+        allowed_origins: config.allowedOrigins,
         storage: {
           orders: storageKind(config.orderStorageDir),
           uploads: storageKind(config.csvStorageDir),
@@ -74,6 +76,15 @@ const server = createServer(async (request, response) => {
 
     return sendJson(response, 404, { error: "not_found" });
   } catch (error) {
+    const statusCode = error instanceof Error && "statusCode" in error
+      ? Number((error as Error & { statusCode?: number }).statusCode)
+      : 500;
+    if (statusCode === 413) {
+      return sendJson(response, 413, {
+        error: "payload_too_large",
+        message: error instanceof Error ? error.message : "Request body too large."
+      });
+    }
     return sendJson(response, 500, {
       error: "server_error",
       message: error instanceof Error ? error.message : "Unknown server error"
@@ -87,7 +98,7 @@ async function handleUpload(request: IncomingMessage, response: ServerResponse) 
     original_file_name?: string;
     plan?: CommerceFixPlan;
     payer_email?: string;
-  }>(request);
+  }>(request, config.maxUploadBytes);
 
   if (!body.csv_text || !body.original_file_name) {
     return sendJson(response, 400, { error: "missing_csv_text_or_file_name" });
@@ -125,7 +136,7 @@ async function handleCheckout(request: IncomingMessage, response: ServerResponse
     order_id?: string;
     return_url?: string;
     cancel_url?: string;
-  }>(request);
+  }>(request, 64 * 1024);
 
   if (!body.order_id) return sendJson(response, 400, { error: "missing_order_id" });
   const order = await readOrder(config.orderStorageDir, body.order_id);
@@ -267,15 +278,23 @@ async function handleFailures(response: ServerResponse) {
   }
 }
 
-async function readJson<T>(request: IncomingMessage): Promise<T> {
-  const raw = await readRawBody(request);
+async function readJson<T>(request: IncomingMessage, maxBytes = 1024 * 1024): Promise<T> {
+  const raw = await readRawBody(request, maxBytes);
   return JSON.parse(raw || "{}") as T;
 }
 
-async function readRawBody(request: IncomingMessage) {
+async function readRawBody(request: IncomingMessage, maxBytes = 1024 * 1024) {
   const chunks: Buffer[] = [];
+  let totalBytes = 0;
   for await (const chunk of request) {
-    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    totalBytes += buffer.length;
+    if (totalBytes > maxBytes) {
+      const error = new Error(`Request body too large. Limit is ${maxBytes} bytes.`);
+      (error as Error & { statusCode?: number }).statusCode = 413;
+      throw error;
+    }
+    chunks.push(buffer);
   }
   return Buffer.concat(chunks).toString("utf8");
 }
@@ -295,10 +314,19 @@ function parsePlan(input: unknown): CommerceFixPlan | null {
   return null;
 }
 
-function setCors(response: ServerResponse) {
-  response.setHeader("Access-Control-Allow-Origin", "*");
+function setCors(request: IncomingMessage, response: ServerResponse) {
+  const origin = String(request.headers.origin ?? "");
+  if (isAllowedOrigin(origin)) {
+    response.setHeader("Access-Control-Allow-Origin", origin);
+    response.setHeader("Vary", "Origin");
+  }
   response.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   response.setHeader("Access-Control-Allow-Headers", "Content-Type, PayPal-Auth-Algo, PayPal-Cert-Url, PayPal-Transmission-Id, PayPal-Transmission-Sig, PayPal-Transmission-Time");
+}
+
+function isAllowedOrigin(origin: string) {
+  if (!origin) return false;
+  return config.allowedOrigins.includes(origin.replace(/\/$/, ""));
 }
 
 function sendJson(response: ServerResponse, status: number, payload: unknown) {

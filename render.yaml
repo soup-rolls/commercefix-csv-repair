@@ -45,11 +45,15 @@ services:
       - key: DELIVERY_REPLY_TO
         sync: false
       - key: ORDER_STORAGE_DIR
-        value: /tmp/commercefix/orders
+        value: /var/data/orders
       - key: CSV_STORAGE_DIR
-        value: /tmp/commercefix/uploads
+        value: /var/data/uploads
       - key: PACKAGE_STORAGE_DIR
-        value: /tmp/commercefix/packages
+        value: /var/data/packages
+      - key: MAX_UPLOAD_BYTES
+        value: "10485760"
+      - key: ALLOWED_ORIGINS
+        value: https://soup-rolls.github.io
       - key: DOWNLOAD_BASE_URL
         sync: false
       - key: PUBLIC_BASE_URL
@@ -75,4 +79,4 @@ services:
       - key: IMAP_DEFAULT_PLAN
         value: Repair Pro
       - key: IMAP_CHECKPOINT_PATH
-        value: /tmp/commercefix/imap-checkpoint.json
+        value: /var/data/imap-checkpoint.json

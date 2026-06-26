@@ -93,6 +93,15 @@ function privacy() {
 </ul>
 <p>Checkout metadata is used to create a PayPal-hosted payment session and link a verified payment event to the uploaded CSV.</p>
 <p>Paid repair generation runs behind a trusted payment event and controlled generation endpoint.</p>
+<h2>Retention</h2>
+<ul>
+  <li>Free browser previews are not uploaded unless the user starts hosted checkout.</li>
+  <li>Uploaded CSV files, generated packages, and order metadata are kept only as long as needed for paid repair delivery, support, fraud review, and tax/payment records.</li>
+  <li>Download links expire according to the package retention window shown by the order status page.</li>
+  <li>Customers may request deletion of uploaded CSV files after delivery by emailing support with the order id.</li>
+</ul>
+<h2>Human access</h2>
+<p>CommerceFix may inspect uploaded CSV files only to debug failed generation, support a paid order, or review abuse. CommerceFix does not ask for Shopify passwords, cookies, API tokens, or admin access.</p>
 `;
 }
 
@@ -122,6 +131,8 @@ function terms() {
 <p>Hosted PayPal checkout is the payment authority. No paid files are delivered until a verified capture event is received by the CommerceFix backend.</p>
 <h2>Refund review</h2>
 <p>Refunds are reviewed manually for duplicate payments, failed delivery, or clear file-generation failure. CSV content disputes, ranking outcomes, and Shopify import decisions require human review and are not automatically refunded.</p>
+<h2>Customer responsibility</h2>
+<p>Always inspect the delivered CSV package before importing it into Shopify. CommerceFix does not automatically publish products, change store data, or guarantee Shopify import acceptance for every edge case.</p>
 `;
 }
 
@@ -213,6 +224,8 @@ function checkout() {
   var panel = document.getElementById("order-status");
   var apiBase = panel.getAttribute("data-api-base").replace(/\\/$/, "");
   var checkoutStatus = params.get("status");
+  var refreshCount = 0;
+  var maxRefreshCount = 18;
 
   function setFields(rows) {
     fields.innerHTML = rows.map(function (row) {
@@ -236,7 +249,10 @@ function checkout() {
   }
 
   statusCopy.textContent = "Checking order " + orderId + "...";
-  fetch(apiBase + "/api/commercefix/order/" + encodeURIComponent(orderId))
+  readOrderStatus();
+
+  function readOrderStatus() {
+    fetch(apiBase + "/api/commercefix/order/" + encodeURIComponent(orderId))
     .then(function (response) {
       if (!response.ok) throw new Error("order_status_" + response.status);
       return response.json();
@@ -295,14 +311,19 @@ function checkout() {
               retry.removeAttribute("disabled");
               retry.textContent = "Restart hosted checkout";
               statusCopy.textContent = "Could not restart checkout. Return to the scanner or contact support with this order id.";
-            });
+          });
         });
+      }
+      if (!ready && order.payment_status === "paid" && order.next_action === "wait_for_generation" && refreshCount < maxRefreshCount) {
+        refreshCount += 1;
+        window.setTimeout(readOrderStatus, 10000);
       }
     })
     .catch(function () {
       statusCopy.textContent = "Could not read this order yet. Save the order id and contact support if it stays unavailable.";
       setFields([["Order", orderId]]);
     });
+  }
 })();
 </script>
 `;

@@ -75,6 +75,15 @@ dd { margin: 0; color: #14201a; overflow-wrap: anywhere; }
 </ul>
 <p>Checkout metadata is used to create a PayPal-hosted payment session and link a verified payment event to the uploaded CSV.</p>
 <p>Paid repair generation runs behind a trusted payment event and controlled generation endpoint.</p>
+<h2>Retention</h2>
+<ul>
+  <li>Free browser previews are not uploaded unless the user starts hosted checkout.</li>
+  <li>Uploaded CSV files, generated packages, and order metadata are kept only as long as needed for paid repair delivery, support, fraud review, and tax/payment records.</li>
+  <li>Download links expire according to the package retention window shown by the order status page.</li>
+  <li>Customers may request deletion of uploaded CSV files after delivery by emailing support with the order id.</li>
+</ul>
+<h2>Human access</h2>
+<p>CommerceFix may inspect uploaded CSV files only to debug failed generation, support a paid order, or review abuse. CommerceFix does not ask for Shopify passwords, cookies, API tokens, or admin access.</p>
 
       </section>
     </main>

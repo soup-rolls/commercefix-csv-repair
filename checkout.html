@@ -91,6 +91,8 @@ dd { margin: 0; color: #14201a; overflow-wrap: anywhere; }
   var panel = document.getElementById("order-status");
   var apiBase = panel.getAttribute("data-api-base").replace(/\/$/, "");
   var checkoutStatus = params.get("status");
+  var refreshCount = 0;
+  var maxRefreshCount = 18;
 
   function setFields(rows) {
     fields.innerHTML = rows.map(function (row) {
@@ -114,7 +116,10 @@ dd { margin: 0; color: #14201a; overflow-wrap: anywhere; }
   }
 
   statusCopy.textContent = "Checking order " + orderId + "...";
-  fetch(apiBase + "/api/commercefix/order/" + encodeURIComponent(orderId))
+  readOrderStatus();
+
+  function readOrderStatus() {
+    fetch(apiBase + "/api/commercefix/order/" + encodeURIComponent(orderId))
     .then(function (response) {
       if (!response.ok) throw new Error("order_status_" + response.status);
       return response.json();
@@ -173,14 +178,19 @@ dd { margin: 0; color: #14201a; overflow-wrap: anywhere; }
               retry.removeAttribute("disabled");
               retry.textContent = "Restart hosted checkout";
               statusCopy.textContent = "Could not restart checkout. Return to the scanner or contact support with this order id.";
-            });
+          });
         });
+      }
+      if (!ready && order.payment_status === "paid" && order.next_action === "wait_for_generation" && refreshCount < maxRefreshCount) {
+        refreshCount += 1;
+        window.setTimeout(readOrderStatus, 10000);
       }
     })
     .catch(function () {
       statusCopy.textContent = "Could not read this order yet. Save the order id and contact support if it stays unavailable.";
       setFields([["Order", orderId]]);
     });
+  }
 })();
 </script>
 
