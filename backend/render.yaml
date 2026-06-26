@@ -45,11 +45,11 @@
       - key: DELIVERY_REPLY_TO
         sync: false
       - key: ORDER_STORAGE_DIR
-        value: /var/data/orders
+        value: /tmp/commercefix/orders
       - key: CSV_STORAGE_DIR
-        value: /var/data/uploads
+        value: /tmp/commercefix/uploads
       - key: PACKAGE_STORAGE_DIR
-        value: /var/data/packages
+        value: /tmp/commercefix/packages
       - key: DOWNLOAD_BASE_URL
         sync: false
       - key: PUBLIC_BASE_URL
@@ -75,4 +75,4 @@
       - key: IMAP_DEFAULT_PLAN
         value: Repair Pro
       - key: IMAP_CHECKPOINT_PATH
-        value: /var/data/imap-checkpoint.json
+        value: /tmp/commercefix/imap-checkpoint.json
