@@ -1,5 +1,5 @@
 import type { AutomationConfig } from "./automationTypes";
-import { existsSync, readFileSync } from "node:fs";
+import { accessSync, constants, existsSync, mkdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 loadLocalEnvFiles();
@@ -21,9 +21,9 @@ export function loadAutomationConfig(env: Record<string, string | undefined> = p
     gmailProxyUrl: env.GMAIL_PROXY_URL,
     deliveryFrom: env.DELIVERY_FROM ?? "CommerceFix <shichenghao321@gmail.com>",
     deliveryReplyTo: env.DELIVERY_REPLY_TO ?? "shichenghao321@gmail.com",
-    orderStorageDir: env.ORDER_STORAGE_DIR ?? "D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/orders",
-    csvStorageDir: env.CSV_STORAGE_DIR ?? "D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/uploads",
-    packageStorageDir: env.PACKAGE_STORAGE_DIR ?? "D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/packages",
+    orderStorageDir: writableDir(env.ORDER_STORAGE_DIR ?? "D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/orders", "orders"),
+    csvStorageDir: writableDir(env.CSV_STORAGE_DIR ?? "D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/uploads", "uploads"),
+    packageStorageDir: writableDir(env.PACKAGE_STORAGE_DIR ?? "D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/packages", "packages"),
     downloadBaseUrl: env.DOWNLOAD_BASE_URL,
     packageRetentionHours: Number(env.PACKAGE_RETENTION_HOURS ?? 72),
     publicBaseUrl: env.PUBLIC_BASE_URL ?? env.SITE_URL ?? "http://127.0.0.1:8787",
@@ -37,8 +37,34 @@ export function loadAutomationConfig(env: Record<string, string | undefined> = p
     imapSearchQuery: env.IMAP_SEARCH_QUERY ?? 'SUBJECT "CommerceFix CSV Request"',
     imapMaxMessages: Number(env.IMAP_MAX_MESSAGES ?? 10),
     imapDefaultPlan: env.IMAP_DEFAULT_PLAN === "Repair Lite" ? "Repair Lite" : "Repair Pro",
-    imapCheckpointPath: env.IMAP_CHECKPOINT_PATH ?? "D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/imap-checkpoint.json"
+    imapCheckpointPath: writableFile(
+      env.IMAP_CHECKPOINT_PATH ?? "D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/imap-checkpoint.json",
+      "imap-checkpoint.json"
+    )
   };
+}
+
+function writableDir(input: string, fallbackName: string) {
+  if (!input.startsWith("/var/data")) return input;
+  try {
+    mkdirSync(input, { recursive: true });
+    accessSync(input, constants.W_OK);
+    return input;
+  } catch {
+    return path.posix.join("/tmp/commercefix", fallbackName);
+  }
+}
+
+function writableFile(input: string, fallbackName: string) {
+  if (!input.startsWith("/var/data")) return input;
+  const parent = path.posix.dirname(input);
+  try {
+    mkdirSync(parent, { recursive: true });
+    accessSync(parent, constants.W_OK);
+    return input;
+  } catch {
+    return path.posix.join("/tmp/commercefix", fallbackName);
+  }
 }
 
 function loadLocalEnvFiles() {
