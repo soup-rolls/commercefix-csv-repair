@@ -45,9 +45,10 @@ export function loadAutomationConfig(env: Record<string, string | undefined> = p
 }
 
 function resolvePayPalEnv(env: Record<string, string | undefined>): "live" | "sandbox" {
-  if (env.PAYPAL_WEBHOOK_ID === "9T2439849D580342D") return "live";
-  if (env.PAYPAL_ENV === "live") return "live";
-  if (env.PAYPAL_ENV === "sandbox") return "sandbox";
+  if (env.PAYPAL_WEBHOOK_ID?.trim() === "9T2439849D580342D") return "live";
+  if (env.PAYPAL_ENV?.trim() === "live") return "live";
+  if (env.NODE_ENV === "production" && env.ALLOW_PAYPAL_SANDBOX !== "true") return "live";
+  if (env.PAYPAL_ENV?.trim() === "sandbox") return "sandbox";
   return "sandbox";
 }
 
