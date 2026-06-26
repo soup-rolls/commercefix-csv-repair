@@ -128,7 +128,8 @@ export function paymentPaidEventFromPayPal(rawBody: string): PaymentPaidEvent | 
   const amount = event.resource.amount?.value;
   const currency = event.resource.amount?.currency_code;
   const payerEmail = event.resource.payer?.email_address;
-  const orderId = event.resource.invoice_id ?? event.resource.supplementary_data?.related_ids?.order_id;
+  const providerOrderId = event.resource.supplementary_data?.related_ids?.order_id;
+  const orderId = event.resource.invoice_id ?? providerOrderId;
   const captureId = event.resource.id;
   const scanId = event.resource.custom_id;
   const plan = planFromCustomId(scanId);
@@ -151,7 +152,7 @@ export function paymentPaidEventFromPayPal(rawBody: string): PaymentPaidEvent | 
       currency,
       payment_status: "paid",
       provider_capture_id: captureId,
-      provider_order_id: orderId
+      provider_order_id: providerOrderId
     }
   };
 }

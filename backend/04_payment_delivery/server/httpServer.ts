@@ -196,7 +196,7 @@ async function handleOrderStatus(url: URL, response: ServerResponse) {
   const packageReady = order.payment_status === "paid" && Boolean(order.package_path);
   const expired = packageReady ? isPackageExpired(order) : false;
   const downloadUrl = packageReady && !expired
-    ? order.download_url ?? (config.downloadBaseUrl ? `${config.downloadBaseUrl.replace(/\/$/, "")}/${encodeURIComponent(order.order_id)}` : undefined)
+    ? order.download_url ?? `${downloadBaseUrl().replace(/\/$/, "")}/${encodeURIComponent(order.order_id)}`
     : undefined;
 
   return sendJson(response, 200, {
@@ -289,6 +289,10 @@ function packageExpiresAt(order: { delivered_at?: string; paid_at?: string; crea
 
 function isPackageExpired(order: { delivered_at?: string; paid_at?: string; created_at: string }) {
   return Date.now() > Date.parse(packageExpiresAt(order));
+}
+
+function downloadBaseUrl() {
+  return config.downloadBaseUrl ?? `${config.publicBaseUrl.replace(/\/$/, "")}/api/commercefix/download`;
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

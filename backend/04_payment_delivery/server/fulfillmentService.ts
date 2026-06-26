@@ -2,7 +2,7 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { buildPaidRepairPackageBytes } from "./serverRepairPackage";
 import { sendDeliveryFailureAlert, sendRepairPackageEmail } from "./emailDelivery";
-import { appendEvent, readOrder, safeFileName, writeOrder } from "./orderStore";
+import { appendEvent, findOrderByProviderOrderId, readOrder, safeFileName, writeOrder } from "./orderStore";
 import type { AutomationConfig, DeliveryFailedEvent, DeliverySentEvent, PaymentPaidEvent, StoredOrder } from "./automationTypes";
 
 const PAID_FILES = [
@@ -15,7 +15,9 @@ const PAID_FILES = [
 export async function fulfillPaidOrder(config: AutomationConfig, event: PaymentPaidEvent) {
   await appendEvent(config.orderStorageDir, event);
 
-  const order = await readOrder(config.orderStorageDir, event.payload.order_id);
+  const order =
+    (await readOrder(config.orderStorageDir, event.payload.order_id)) ??
+    (event.payload.provider_order_id ? await findOrderByProviderOrderId(config.orderStorageDir, event.payload.provider_order_id) : null);
   if (!order) {
     const failed = deliveryFailed(event, "order_not_found", "Your order was paid, but the matching CSV upload was not found.");
     await recordFailure(config, failed);
@@ -28,14 +30,14 @@ export async function fulfillPaidOrder(config: AutomationConfig, event: PaymentP
       payment_status: "paid",
       payer_email: event.payload.payer_email,
       provider_capture_id: event.payload.provider_capture_id,
-      provider_order_id: event.payload.provider_order_id,
+      provider_order_id: event.payload.provider_order_id ?? order.provider_order_id,
       paid_at: event.created_at
     };
 
     const csvText = await readFile(paidOrder.csv_storage_path, "utf8");
     const packageBytes = await buildPaidRepairPackageBytes(csvText, paidOrder.original_file_name);
     const packagePath = await writePackage(config, paidOrder, packageBytes);
-    const downloadUrl = config.downloadBaseUrl ? `${config.downloadBaseUrl.replace(/\/$/, "")}/${encodeURIComponent(paidOrder.order_id)}` : undefined;
+    const downloadUrl = `${downloadBaseUrl(config).replace(/\/$/, "")}/${encodeURIComponent(paidOrder.order_id)}`;
 
     const readyOrder: StoredOrder = {
       ...paidOrder,
@@ -73,7 +75,7 @@ export async function fulfillPaidOrder(config: AutomationConfig, event: PaymentP
       created_at: deliveredOrder.delivered_at!,
       payload: {
         scan_id: event.payload.scan_id,
-        order_id: event.payload.order_id,
+        order_id: deliveredOrder.order_id,
         payer_email: event.payload.payer_email,
         delivery_status: "sent",
         package_path: packagePath,
@@ -100,6 +102,10 @@ async function writePackage(config: AutomationConfig, order: StoredOrder, bytes:
   const packagePath = path.join(config.packageStorageDir, fileName);
   await writeFile(packagePath, bytes);
   return packagePath;
+}
+
+function downloadBaseUrl(config: AutomationConfig) {
+  return config.downloadBaseUrl ?? `${config.publicBaseUrl.replace(/\/$/, "")}/api/commercefix/download`;
 }
 
 function deliveryFailed(

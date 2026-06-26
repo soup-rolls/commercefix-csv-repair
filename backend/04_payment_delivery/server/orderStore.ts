@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { DeliveryFailedEvent, DeliverySentEvent, MailIntakeCreatedEvent, PaymentPaidEvent, StoredOrder } from "./automationTypes";
 
@@ -17,6 +17,22 @@ export async function readOrder(orderStorageDir: string, orderId: string): Promi
 export async function writeOrder(orderStorageDir: string, order: StoredOrder) {
   await mkdir(orderStorageDir, { recursive: true });
   await writeFile(orderPath(orderStorageDir, order.order_id), `${JSON.stringify(order, null, 2)}\n`, "utf8");
+}
+
+export async function findOrderByProviderOrderId(orderStorageDir: string, providerOrderId: string): Promise<StoredOrder | null> {
+  try {
+    const names = await readdir(orderStorageDir);
+    for (const name of names) {
+      if (!name.endsWith(".json")) continue;
+      const raw = await readFile(path.join(orderStorageDir, name), "utf8");
+      const order = JSON.parse(raw) as StoredOrder;
+      if (order.provider_order_id === providerOrderId) return order;
+    }
+    return null;
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "ENOENT") return null;
+    throw error;
+  }
 }
 
 export async function appendEvent(orderStorageDir: string, event: CommerceFixEvent) {
