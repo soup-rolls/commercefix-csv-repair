@@ -7,9 +7,9 @@ loadLocalEnvFiles();
 export function loadAutomationConfig(env: Record<string, string | undefined> = process.env): AutomationConfig {
   return {
     paypalEnv: resolvePayPalEnv(env),
-    paypalClientId: env.PAYPAL_CLIENT_ID ?? "",
-    paypalClientSecret: env.PAYPAL_CLIENT_SECRET ?? "",
-    paypalWebhookId: env.PAYPAL_WEBHOOK_ID ?? "",
+    paypalClientId: env.PAYPAL_CLIENT_ID?.trim() ?? "",
+    paypalClientSecret: env.PAYPAL_CLIENT_SECRET?.trim() ?? "",
+    paypalWebhookId: env.PAYPAL_WEBHOOK_ID?.trim() ?? "",
     paypalCurrency: env.PAYPAL_CURRENCY ?? "USD",
     paypalLitePrice: env.PAYPAL_LITE_PRICE ?? "19.00",
     paypalProPrice: env.PAYPAL_PRO_PRICE ?? "39.00",

@@ -27,6 +27,8 @@ const server = createServer(async (request, response) => {
         paypal_env: config.paypalEnv,
         paypal_client_id_configured: Boolean(config.paypalClientId),
         paypal_client_secret_configured: Boolean(config.paypalClientSecret),
+        paypal_client_id_length: config.paypalClientId.length,
+        paypal_client_secret_length: config.paypalClientSecret.length,
         paypal_webhook_id_configured: Boolean(config.paypalWebhookId),
         storage: {
           orders: storageKind(config.orderStorageDir),
