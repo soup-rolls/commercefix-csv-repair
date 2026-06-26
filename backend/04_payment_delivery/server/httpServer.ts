@@ -30,12 +30,20 @@ const server = createServer(async (request, response) => {
         paypal_client_id_length: config.paypalClientId.length,
         paypal_client_secret_length: config.paypalClientSecret.length,
         paypal_webhook_id_configured: Boolean(config.paypalWebhookId),
+        package_retention_hours: config.packageRetentionHours,
         storage: {
           orders: storageKind(config.orderStorageDir),
           uploads: storageKind(config.csvStorageDir),
           packages: storageKind(config.packageStorageDir)
-        }
+        },
+        storage_warning: storageKind(config.orderStorageDir) === "render_tmp"
+          ? "temporary_storage_redeploy_can_clear_pending_orders"
+          : undefined
       });
+    }
+
+    if (request.method === "GET" && url.pathname.startsWith("/api/commercefix/order/")) {
+      return await handleOrderStatus(url, response);
     }
 
     if (request.method === "POST" && url.pathname === "/api/commercefix/upload") {
@@ -167,6 +175,9 @@ async function handleDownload(url: URL, response: ServerResponse) {
   if (order.payment_status !== "paid" || !order.package_path) {
     return sendJson(response, 402, { error: "payment_required" });
   }
+  if (isPackageExpired(order)) {
+    return sendJson(response, 410, { error: "download_expired", order_id: order.order_id });
+  }
 
   const bytes = await readFile(order.package_path);
   response.writeHead(200, {
@@ -175,6 +186,43 @@ async function handleDownload(url: URL, response: ServerResponse) {
     "Cache-Control": "private, max-age=300"
   });
   response.end(bytes);
+}
+
+async function handleOrderStatus(url: URL, response: ServerResponse) {
+  const orderId = decodeURIComponent(url.pathname.split("/").pop() ?? "");
+  const order = await readOrder(config.orderStorageDir, orderId);
+  if (!order) return sendJson(response, 404, { error: "order_not_found" });
+
+  const packageReady = order.payment_status === "paid" && Boolean(order.package_path);
+  const expired = packageReady ? isPackageExpired(order) : false;
+  const downloadUrl = packageReady && !expired
+    ? order.download_url ?? (config.downloadBaseUrl ? `${config.downloadBaseUrl.replace(/\/$/, "")}/${encodeURIComponent(order.order_id)}` : undefined)
+    : undefined;
+
+  return sendJson(response, 200, {
+    business_id: "commercefix",
+    order_id: order.order_id,
+    scan_id: order.scan_id,
+    plan: order.plan,
+    amount: order.amount,
+    currency: order.currency,
+    payment_status: order.payment_status,
+    package_ready: packageReady,
+    delivery_status: order.delivered_at ? "sent" : packageReady ? "ready" : "pending",
+    original_file_name: order.original_file_name,
+    created_at: order.created_at,
+    paid_at: order.paid_at,
+    delivered_at: order.delivered_at,
+    download_url: downloadUrl,
+    download_expires_at: packageReady ? packageExpiresAt(order) : undefined,
+    download_expired: expired,
+    files: packageReady ? [
+      "fixed_import_safe.csv",
+      "seo_patch_only.csv",
+      "error_report.xlsx",
+      "before_after_preview.html"
+    ] : undefined
+  });
 }
 
 async function handleFailures(response: ServerResponse) {
@@ -232,6 +280,15 @@ function storageKind(input: string) {
   if (input.startsWith("/var/data")) return "render_disk";
   if (/^[A-Za-z]:[\\/]/.test(input)) return "local_windows";
   return "custom";
+}
+
+function packageExpiresAt(order: { delivered_at?: string; paid_at?: string; created_at: string }) {
+  const base = Date.parse(order.delivered_at ?? order.paid_at ?? order.created_at);
+  return new Date(base + config.packageRetentionHours * 60 * 60 * 1000).toISOString();
+}
+
+function isPackageExpired(order: { delivered_at?: string; paid_at?: string; created_at: string }) {
+  return Date.now() > Date.parse(packageExpiresAt(order));
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {

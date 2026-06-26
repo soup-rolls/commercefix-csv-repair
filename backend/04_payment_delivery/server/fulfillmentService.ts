@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { buildPaidRepairPackageBytes } from "./serverRepairPackage";
-import { sendRepairPackageEmail } from "./emailDelivery";
+import { sendDeliveryFailureAlert, sendRepairPackageEmail } from "./emailDelivery";
 import { appendEvent, readOrder, safeFileName, writeOrder } from "./orderStore";
 import type { AutomationConfig, DeliveryFailedEvent, DeliverySentEvent, PaymentPaidEvent, StoredOrder } from "./automationTypes";
 
@@ -18,7 +18,7 @@ export async function fulfillPaidOrder(config: AutomationConfig, event: PaymentP
   const order = await readOrder(config.orderStorageDir, event.payload.order_id);
   if (!order) {
     const failed = deliveryFailed(event, "order_not_found", "Your order was paid, but the matching CSV upload was not found.");
-    await appendEvent(config.orderStorageDir, failed);
+    await recordFailure(config, failed);
     return failed;
   }
 
@@ -35,7 +35,7 @@ export async function fulfillPaidOrder(config: AutomationConfig, event: PaymentP
     const csvText = await readFile(paidOrder.csv_storage_path, "utf8");
     const packageBytes = await buildPaidRepairPackageBytes(csvText, paidOrder.original_file_name);
     const packagePath = await writePackage(config, paidOrder, packageBytes);
-    const downloadUrl = config.downloadBaseUrl ? `${config.downloadBaseUrl.replace(/\/$/, "")}/${path.basename(packagePath)}` : undefined;
+    const downloadUrl = config.downloadBaseUrl ? `${config.downloadBaseUrl.replace(/\/$/, "")}/${encodeURIComponent(paidOrder.order_id)}` : undefined;
 
     const readyOrder: StoredOrder = {
       ...paidOrder,
@@ -57,7 +57,7 @@ export async function fulfillPaidOrder(config: AutomationConfig, event: PaymentP
         "email_delivery_failed",
         "Your repair package was generated, but email delivery failed. Use the secure download route or contact support with your order id."
       );
-      await appendEvent(config.orderStorageDir, failed);
+      await recordFailure(config, failed);
       return failed;
     }
 
@@ -89,7 +89,7 @@ export async function fulfillPaidOrder(config: AutomationConfig, event: PaymentP
       isMissingCsvError(error) ? "csv_not_found" : "repair_generation_failed",
       "Your repair package needs manual review before delivery."
     );
-    await appendEvent(config.orderStorageDir, failed);
+    await recordFailure(config, failed);
     return failed;
   }
 }
@@ -123,4 +123,13 @@ function deliveryFailed(
 
 function isMissingCsvError(error: unknown) {
   return error instanceof Error && "code" in error && error.code === "ENOENT";
+}
+
+async function recordFailure(config: AutomationConfig, failed: DeliveryFailedEvent) {
+  await appendEvent(config.orderStorageDir, failed);
+  try {
+    await sendDeliveryFailureAlert({ config, event: failed });
+  } catch {
+    // Alert delivery must not block PayPal webhook acknowledgement.
+  }
 }

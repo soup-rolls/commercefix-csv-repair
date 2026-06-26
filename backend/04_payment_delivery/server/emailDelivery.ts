@@ -1,5 +1,5 @@
 import { createTransport } from "nodemailer";
-import type { AutomationConfig, StoredOrder } from "./automationTypes";
+import type { AutomationConfig, DeliveryFailedEvent, StoredOrder } from "./automationTypes";
 import { resolveGmailProxyUrl } from "./proxySupport";
 
 export async function sendRepairPackageEmail(args: {
@@ -49,6 +49,54 @@ export async function sendRepairPackageEmail(args: {
       }
     ]
   });
+}
+
+export async function sendDeliveryFailureAlert(args: {
+  config: AutomationConfig;
+  event: DeliveryFailedEvent;
+}) {
+  if (!args.config.smtpUser || !args.config.smtpAppPassword || !args.config.deliveryReplyTo) return;
+
+  const proxyUrl = resolveGmailProxyUrl(args.config.gmailProxyUrl);
+  const transportOptions = {
+    host: args.config.smtpHost,
+    port: args.config.smtpPort,
+    secure: args.config.smtpSecure,
+    auth: {
+      user: args.config.smtpUser,
+      pass: args.config.smtpAppPassword
+    }
+  } as {
+    host: string;
+    port: number;
+    secure: boolean;
+    auth: { user: string; pass: string };
+    proxy?: string;
+  };
+  if (proxyUrl) transportOptions.proxy = proxyUrl;
+
+  const transporter = createTransport(transportOptions);
+  await transporter.sendMail({
+    from: args.config.deliveryFrom,
+    to: args.config.deliveryReplyTo,
+    replyTo: args.config.deliveryReplyTo,
+    subject: `CommerceFix delivery failed: ${args.event.payload.reason}`,
+    text: failureAlertText(args.event),
+    html: `<pre>${escapeHtml(failureAlertText(args.event))}</pre>`
+  });
+}
+
+function failureAlertText(event: DeliveryFailedEvent) {
+  return [
+      "CommerceFix delivery failed.",
+      "",
+      `Order: ${event.payload.order_id}`,
+      `Scan: ${event.payload.scan_id}`,
+      `Reason: ${event.payload.reason}`,
+      event.payload.payer_email ? `Payer: ${event.payload.payer_email}` : undefined,
+      "",
+      event.payload.customer_visible_message
+    ].filter(Boolean).join("\n")
 }
 
 function renderDeliveryText(order: StoredOrder, downloadUrl?: string) {
