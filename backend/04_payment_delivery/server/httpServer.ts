@@ -21,24 +21,39 @@ const server = createServer(async (request, response) => {
       return sendJson(response, 200, { ok: true, service: "commercefix-automation" });
     }
 
+    if (request.method === "GET" && url.pathname === "/api/commercefix/runtime-check") {
+      return sendJson(response, 200, {
+        ok: true,
+        paypal_env: config.paypalEnv,
+        paypal_client_id_configured: Boolean(config.paypalClientId),
+        paypal_client_secret_configured: Boolean(config.paypalClientSecret),
+        paypal_webhook_id_configured: Boolean(config.paypalWebhookId),
+        storage: {
+          orders: storageKind(config.orderStorageDir),
+          uploads: storageKind(config.csvStorageDir),
+          packages: storageKind(config.packageStorageDir)
+        }
+      });
+    }
+
     if (request.method === "POST" && url.pathname === "/api/commercefix/upload") {
-      return handleUpload(request, response);
+      return await handleUpload(request, response);
     }
 
     if (request.method === "POST" && url.pathname === "/api/commercefix/checkout") {
-      return handleCheckout(request, response);
+      return await handleCheckout(request, response);
     }
 
     if (request.method === "POST" && url.pathname === "/api/commercefix/paypal/webhook") {
-      return handleWebhook(request, response);
+      return await handleWebhook(request, response);
     }
 
     if (request.method === "GET" && url.pathname.startsWith("/api/commercefix/download/")) {
-      return handleDownload(url, response);
+      return await handleDownload(url, response);
     }
 
     if (request.method === "GET" && url.pathname === "/api/commercefix/failures") {
-      return handleFailures(response);
+      return await handleFailures(response);
     }
 
     return sendJson(response, 404, { error: "not_found" });
@@ -208,6 +223,13 @@ function setCors(response: ServerResponse) {
 function sendJson(response: ServerResponse, status: number, payload: unknown) {
   response.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
   response.end(JSON.stringify(payload, null, 2));
+}
+
+function storageKind(input: string) {
+  if (input.startsWith("/tmp/commercefix")) return "render_tmp";
+  if (input.startsWith("/var/data")) return "render_disk";
+  if (/^[A-Za-z]:[\\/]/.test(input)) return "local_windows";
+  return "custom";
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
