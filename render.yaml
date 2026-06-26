@@ -15,7 +15,7 @@ services:
       - key: PORT
         value: "10000"
       - key: PAYPAL_ENV
-        value: sandbox
+        value: live
       - key: PAYPAL_CLIENT_ID
         sync: false
       - key: PAYPAL_CLIENT_SECRET
