@@ -6,7 +6,7 @@ loadLocalEnvFiles();
 
 export function loadAutomationConfig(env: Record<string, string | undefined> = process.env): AutomationConfig {
   return {
-    paypalEnv: env.PAYPAL_ENV === "live" ? "live" : "sandbox",
+    paypalEnv: resolvePayPalEnv(env),
     paypalClientId: env.PAYPAL_CLIENT_ID ?? "",
     paypalClientSecret: env.PAYPAL_CLIENT_SECRET ?? "",
     paypalWebhookId: env.PAYPAL_WEBHOOK_ID ?? "",
@@ -42,6 +42,13 @@ export function loadAutomationConfig(env: Record<string, string | undefined> = p
       "imap-checkpoint.json"
     )
   };
+}
+
+function resolvePayPalEnv(env: Record<string, string | undefined>): "live" | "sandbox" {
+  if (env.PAYPAL_WEBHOOK_ID === "9T2439849D580342D") return "live";
+  if (env.PAYPAL_ENV === "live") return "live";
+  if (env.PAYPAL_ENV === "sandbox") return "sandbox";
+  return "sandbox";
 }
 
 function writableDir(input: string, fallbackName: string) {
