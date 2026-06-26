@@ -19,11 +19,11 @@ export function loadAutomationConfig(env: Record<string, string | undefined> = p
     smtpUser: env.SMTP_USER ?? "",
     smtpAppPassword: env.SMTP_APP_PASSWORD ?? "",
     gmailProxyUrl: env.GMAIL_PROXY_URL,
-    deliveryFrom: env.DELIVERY_FROM ?? "CommerceFix <support@example.com>",
-    deliveryReplyTo: env.DELIVERY_REPLY_TO ?? "support@example.com",
-    orderStorageDir: env.ORDER_STORAGE_DIR ?? "./.commercefix/orders",
-    csvStorageDir: env.CSV_STORAGE_DIR ?? "./.commercefix/uploads",
-    packageStorageDir: env.PACKAGE_STORAGE_DIR ?? "./.commercefix/packages",
+    deliveryFrom: env.DELIVERY_FROM ?? "CommerceFix <shichenghao321@gmail.com>",
+    deliveryReplyTo: env.DELIVERY_REPLY_TO ?? "shichenghao321@gmail.com",
+    orderStorageDir: env.ORDER_STORAGE_DIR ?? "D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/orders",
+    csvStorageDir: env.CSV_STORAGE_DIR ?? "D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/uploads",
+    packageStorageDir: env.PACKAGE_STORAGE_DIR ?? "D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/packages",
     downloadBaseUrl: env.DOWNLOAD_BASE_URL,
     packageRetentionHours: Number(env.PACKAGE_RETENTION_HOURS ?? 72),
     publicBaseUrl: env.PUBLIC_BASE_URL ?? env.SITE_URL ?? "http://127.0.0.1:8787",
@@ -37,7 +37,7 @@ export function loadAutomationConfig(env: Record<string, string | undefined> = p
     imapSearchQuery: env.IMAP_SEARCH_QUERY ?? 'SUBJECT "CommerceFix CSV Request"',
     imapMaxMessages: Number(env.IMAP_MAX_MESSAGES ?? 10),
     imapDefaultPlan: env.IMAP_DEFAULT_PLAN === "Repair Lite" ? "Repair Lite" : "Repair Pro",
-    imapCheckpointPath: env.IMAP_CHECKPOINT_PATH ?? "./.commercefix/imap-checkpoint.json"
+    imapCheckpointPath: env.IMAP_CHECKPOINT_PATH ?? "D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/imap-checkpoint.json"
   };
 }
 

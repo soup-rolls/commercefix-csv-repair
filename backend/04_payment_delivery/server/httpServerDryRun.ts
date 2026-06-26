@@ -7,9 +7,9 @@ linen-shirt,Linen Shirt,Northline,Size,,https://cdn.example.com/linen-shirt.jpg,
 `;
 
 async function main() {
-  process.env.ORDER_STORAGE_DIR = path.resolve(".commercefix-api-dry-run", "orders");
-  process.env.CSV_STORAGE_DIR = path.resolve(".commercefix-api-dry-run", "uploads");
-  process.env.PACKAGE_STORAGE_DIR = path.resolve(".commercefix-api-dry-run", "packages");
+  process.env.ORDER_STORAGE_DIR = path.resolve("D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/api-dry-run", "orders");
+  process.env.CSV_STORAGE_DIR = path.resolve("D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/api-dry-run", "uploads");
+  process.env.PACKAGE_STORAGE_DIR = path.resolve("D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/api-dry-run", "packages");
   process.env.PUBLIC_BASE_URL = "http://127.0.0.1:0";
 
   const { server } = await import("./httpServer");

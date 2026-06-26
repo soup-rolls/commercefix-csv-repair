@@ -4,9 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sample Repair Package | CommerceFix</title>
-    <meta name="description" content="CommerceFix is a Shopify CSV Repair File Generator for import-safe CSV repair and SEO metadata patch files." />
+    <meta name="description" content="Preview the CommerceFix paid package: fixed_import_safe.csv, seo_patch_only.csv, error_report.xlsx, and before_after_preview.html." />
     <meta name="robots" content="index,follow" />
     <link rel="canonical" href="https://soup-rolls.github.io/commercefix-csv-repair/sample-report.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CommerceFix" />
+    <meta property="og:title" content="Sample Repair Package | CommerceFix" />
+    <meta property="og:description" content="Preview the CommerceFix paid package: fixed_import_safe.csv, seo_patch_only.csv, error_report.xlsx, and before_after_preview.html." />
+    <meta property="og:url" content="https://soup-rolls.github.io/commercefix-csv-repair/sample-report.html" />
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"WebPage","name":"Sample Repair Package | CommerceFix","description":"Preview the CommerceFix paid package: fixed_import_safe.csv, seo_patch_only.csv, error_report.xlsx, and before_after_preview.html.","url":"https://soup-rolls.github.io/commercefix-csv-repair/sample-report.html","publisher":{"@type":"Organization","name":"CommerceFix"}}
+    </script>
     <style>
 :root { color: #14201a; background: #eef1ed; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
 * { box-sizing: border-box; }
@@ -28,6 +36,8 @@ table { width: 100%; margin-top: 12px; border-collapse: collapse; background: #f
 td, th { padding: 10px; border: 1px solid #dfe6de; text-align: left; vertical-align: top; }
 code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; color: #173d30; }
 .button { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 0 12px; border-radius: 6px; background: #1f6b55; color: #fff; }
+.button.secondary { margin-left: 8px; background: #1d3d63; }
+.notice { margin-top: 14px; padding: 12px; border: 1px solid #d8c68f; border-radius: 8px; background: #fff9e9; color: #5f4b20; font-size: 14px; line-height: 1.55; }
 </style>
   </head>
   <body>
@@ -41,14 +51,22 @@ code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; co
         <p class="eyebrow">File-in / file-out repair tool</p>
         <h1>Sample Repair Package</h1>
         
-<p>This sample shows the paid output shape. It is not a full repaired customer CSV.</p>
+<p>This sample shows the paid output shape. It is not a full repaired customer CSV, but it mirrors the files delivered after a verified payment event.</p>
+<div class="notice">Paid delivery is file-in / file-out: upload a Shopify product CSV, unlock repair generation after payment, receive a zip package.</div>
 <h2>Package contents</h2>
 <table>
-  <tr><th>File</th><th>Purpose</th></tr>
-  <tr><td><code>fixed_import_safe.csv</code></td><td>Shopify-ready CSV with safe repairs for import risks.</td></tr>
-  <tr><td><code>seo_patch_only.csv</code></td><td>SEO title, SEO description, and image alt text patch data.</td></tr>
-  <tr><td><code>error_report.xlsx</code></td><td>Row, field, issue category, severity, and suggested repair.</td></tr>
-  <tr><td><code>before_after_preview.html</code></td><td>Inspectable before/after repair preview.</td></tr>
+  <tr><th>File</th><th>What it contains</th><th>Who needs it</th></tr>
+  <tr><td><code>fixed_import_safe.csv</code></td><td>Shopify-ready CSV with safe repairs for import risks, handles, options, image URL format, and metadata columns.</td><td>Repair Pro</td></tr>
+  <tr><td><code>seo_patch_only.csv</code></td><td>SEO title, SEO description, and image alt text patch data without changing unrelated product fields.</td><td>Lite + Pro</td></tr>
+  <tr><td><code>error_report.xlsx</code></td><td>Row, field, issue category, severity, and suggested repair for review before import.</td><td>Lite + Pro</td></tr>
+  <tr><td><code>before_after_preview.html</code></td><td>Inspectable before/after repair preview for the changed rows and fields.</td><td>Repair Pro</td></tr>
+</table>
+<h2>Example row-level repair</h2>
+<table>
+  <tr><th>Row</th><th>Field</th><th>Before</th><th>After</th></tr>
+  <tr><td>14</td><td><code>Handle</code></td><td>empty</td><td><code>ceramic-mug</code></td></tr>
+  <tr><td>14</td><td><code>Image Src</code></td><td><code>cdn.example.com/mug.jpg</code></td><td><code>https://cdn.example.com/mug.jpg</code></td></tr>
+  <tr><td>14</td><td><code>Metafield: title_tag [string]</code></td><td>empty</td><td><code>Ceramic Mug - Studio Ware</code></td></tr>
 </table>
 <h2>Free preview limit</h2>
 <p>The free scan proves the file is worth repairing. It does not export complete repaired files.</p>
@@ -61,7 +79,7 @@ code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; co
       <a href="/commercefix-csv-repair/terms.html">Terms</a>
       <a href="/commercefix-csv-repair/contact.html">Contact</a>
       <a href="/commercefix-csv-repair/sample-report.html">Sample package</a>
-      <a href="/commercefix-csv-repair/checkout.html">Checkout scope</a>
+      <a href="/commercefix-csv-repair/checkout.html">Reserve repair</a>
     </footer>
   </body>
 </html>

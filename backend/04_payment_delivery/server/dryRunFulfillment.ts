@@ -19,7 +19,7 @@ async function main() {
     import("./serverRepairPackage")
   ]);
 
-  const tmpRoot = path.resolve(".commercefix-dry-run");
+  const tmpRoot = path.resolve("D:/AI_Cashflow_Data/CommerceFix_CSV_Repair/dry-run");
   await rm(tmpRoot, { recursive: true, force: true });
   await mkdir(tmpRoot, { recursive: true });
 
