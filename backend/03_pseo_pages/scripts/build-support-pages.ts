@@ -19,7 +19,7 @@ async function main() {
   await writeFile(path.join(publicDir, "terms.html"), page("Terms of Service", "CommerceFix service scope, paid repair files, refund boundaries, and Shopify CSV repair limitations.", terms()), "utf8");
   await writeFile(path.join(publicDir, "contact.html"), page("Contact CommerceFix", "Support path for Shopify CSV repair checkout, delivery, refund review, and file-scope questions.", contact()), "utf8");
   await writeFile(path.join(publicDir, "sample-report.html"), page("Sample Repair Package", "Preview the CommerceFix paid package: fixed_import_safe.csv, seo_patch_only.csv, error_report.xlsx, and before_after_preview.html.", sampleReport()), "utf8");
-  await writeFile(path.join(publicDir, "checkout.html"), page("Repair Checkout Status", "Check CommerceFix payment, repair package, and delivery status after PayPal checkout.", checkout()), "utf8");
+  await writeFile(path.join(publicDir, "checkout.html"), page("Repair Checkout Status", "Check CommerceFix payment, repair package, and delivery status after PayPal checkout.", checkout(), false), "utf8");
   await writeFile(path.join(publicDir, "404.html"), page("Page Not Found", "The requested CommerceFix page was not found.", notFound(), false), "utf8");
   await writeFile(path.join(publicDir, "health.txt"), "ok\n", "utf8");
   await writeFile(path.join(publicDir, `${indexNowKey}.txt`), indexNowKey, "utf8");
@@ -39,6 +39,7 @@ function page(title: string, description: string, body: string, index = true) {
     <meta name="description" content="${description}" />
     <meta name="robots" content="${index ? "index,follow" : "noindex"}" />
     <link rel="canonical" href="${canonical}" />
+    <link rel="icon" type="image/svg+xml" href="${sitePath("/favicon.svg")}" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="CommerceFix" />
     <meta property="og:title" content="${title} | CommerceFix" />
@@ -67,7 +68,7 @@ function page(title: string, description: string, body: string, index = true) {
       <a href="${sitePath("/terms.html")}">Terms</a>
       <a href="${sitePath("/contact.html")}">Contact</a>
       <a href="${sitePath("/sample-report.html")}">Sample package</a>
-      <a href="${sitePath("/checkout.html")}">Reserve repair</a>
+      <a href="${sitePath("/checkout.html")}">Order status</a>
     </footer>
   </body>
 </html>
@@ -90,8 +91,8 @@ function privacy() {
   <li>No automatic import into Shopify.</li>
   <li>No permanent storage of full CSV files unless a paid delivery workflow explicitly requires it.</li>
 </ul>
-<p>Payment-waitlist requests sent by email are used only to prepare a pending repair request and follow up with a secure payment link when available.</p>
-<p>Paid repair generation, when connected, runs behind a trusted payment event and controlled generation endpoint.</p>
+<p>Checkout metadata is used to create a PayPal-hosted payment session and link a verified payment event to the uploaded CSV.</p>
+<p>Paid repair generation runs behind a trusted payment event and controlled generation endpoint.</p>
 `;
 }
 
@@ -117,8 +118,8 @@ function terms() {
   <li>It does not log into stores, call the Shopify API, or upload products automatically.</li>
   <li>It does not guarantee search rankings, traffic, or marketplace outcomes.</li>
 </ul>
-<h2>Payment pending mode</h2>
-<p>When hosted checkout is not yet enabled, users may reserve a repair slot by email. No paid files are delivered until payment is confirmed.</p>
+<h2>Hosted payment mode</h2>
+<p>Hosted PayPal checkout is the payment authority. No paid files are delivered until a verified capture event is received by the CommerceFix backend.</p>
 <h2>Refund review</h2>
 <p>Refunds are reviewed manually for duplicate payments, failed delivery, or clear file-generation failure. CSV content disputes, ranking outcomes, and Shopify import decisions require human review and are not automatically refunded.</p>
 `;
@@ -136,7 +137,7 @@ function contact() {
   <li>CSV row count and issue summary if available.</li>
   <li>Whether the issue is checkout, generation, delivery, or file content.</li>
 </ul>
-<p>Before paid launch, replace the placeholder support address with the production mailbox or helpdesk form.</p>
+<p>For payment receipts, delivery failures, or CSV edge cases, include the order id shown on the checkout status page.</p>
 `;
 }
 
@@ -186,11 +187,12 @@ function checkout() {
   <p id="status-copy">Looking for an order id in the URL.</p>
   <dl id="status-fields"></dl>
   <p id="download-row"></p>
+  <p id="action-row"></p>
 </div>
 <div class="notice">Paid files unlock only after a verified PayPal payment event. If the package is not ready yet, keep this order id and check again after a few minutes.</div>
-<h2>Reserve by email</h2>
-<p>If checkout or delivery fails, send your Shopify product CSV and order id to <a href="mailto:${supportEmail}">${supportEmail}</a>. Include the plan, row count, and whether the issue is import errors, SEO metadata, image fields, or variants.</p>
-<p><a class="button" href="${mailto}">Email CSV request</a> <a class="button secondary" href="${sitePath("/sample-report.html")}">View sample package</a></p>
+<h2>Fallback support</h2>
+<p>If checkout or delivery fails, send your order id and PayPal receipt to <a href="mailto:${supportEmail}">${supportEmail}</a>. If you have not uploaded a CSV yet, start from the scanner first.</p>
+<p><a class="button" href="${mailto}">Email support</a> <a class="button secondary" href="${sitePath("/sample-report.html")}">View sample package</a></p>
 <h2>Repair plans</h2>
 <table>
   <tr><th>Plan</th><th>Price</th><th>Output</th></tr>
@@ -198,7 +200,7 @@ function checkout() {
   <tr><td>Repair Pro</td><td>$39</td><td>Full four-file repair package, up to 10,000 rows.</td></tr>
 </table>
 <h2>Payment boundary</h2>
-<p>The browser preview and reservation email do not unlock the paid package. Repair generation and delivery require a verified payment event.</p>
+<p>The browser preview does not unlock the paid package. Repair generation and delivery require a verified PayPal capture event.</p>
 <p><a class="button" href="${sitePath("/#scan")}">Return to free scan</a></p>
 <script>
 (function () {
@@ -207,8 +209,10 @@ function checkout() {
   var statusCopy = document.getElementById("status-copy");
   var fields = document.getElementById("status-fields");
   var downloadRow = document.getElementById("download-row");
+  var actionRow = document.getElementById("action-row");
   var panel = document.getElementById("order-status");
   var apiBase = panel.getAttribute("data-api-base").replace(/\\/$/, "");
+  var checkoutStatus = params.get("status");
 
   function setFields(rows) {
     fields.innerHTML = rows.map(function (row) {
@@ -225,7 +229,9 @@ function checkout() {
   }
 
   if (!orderId) {
-    statusCopy.textContent = "No order id found. Start from the CSV scanner or contact support with your PayPal receipt.";
+    statusCopy.textContent = checkoutStatus === "cancelled"
+      ? "Checkout was cancelled. No payment was captured and no repair files were generated."
+      : "No order id found. Start from the CSV scanner or contact support with your PayPal receipt.";
     return;
   }
 
@@ -237,22 +243,61 @@ function checkout() {
     })
     .then(function (order) {
       var ready = order.package_ready && !order.download_expired;
-      statusCopy.textContent = ready
-        ? "Repair package is ready."
-        : order.payment_status === "paid"
-          ? "Payment is confirmed. Package generation or email delivery is still pending."
-          : "Payment is not confirmed yet.";
+      if (ready) {
+        statusCopy.textContent = "Repair package is ready.";
+      } else if (order.download_expired) {
+        statusCopy.textContent = "The secure download link has expired. Contact support with this order id.";
+      } else if (checkoutStatus === "cancelled") {
+        statusCopy.textContent = "Checkout was cancelled. The CSV scan is saved temporarily, but paid files remain locked.";
+      } else if (order.payment_status === "paid") {
+        statusCopy.textContent = "Payment is confirmed. Package generation or email delivery is still pending.";
+      } else {
+        statusCopy.textContent = order.customer_visible_message || "Payment is not confirmed yet.";
+      }
       setFields([
         ["Order", order.order_id],
         ["Plan", order.plan],
+        ["Amount", order.amount ? order.amount + " " + order.currency : ""],
         ["Payment", order.payment_status],
         ["Delivery", order.delivery_status],
         ["Source file", order.original_file_name],
-        ["Download expires", order.download_expires_at]
+        ["Download expires", order.download_expires_at],
+        ["Expected files", (order.expected_files || order.files || []).join(", ")]
       ]);
       downloadRow.innerHTML = ready && order.download_url
         ? '<a class="button" href="' + escapeHtml(order.download_url) + '">Download repair package</a>'
         : "";
+      actionRow.innerHTML = !ready && order.next_action === "restart_checkout"
+        ? '<button class="button" id="retry-checkout" type="button">Restart hosted checkout</button>'
+        : "";
+      var retry = document.getElementById("retry-checkout");
+      if (retry) {
+        retry.addEventListener("click", function () {
+          retry.setAttribute("disabled", "disabled");
+          retry.textContent = "Opening checkout...";
+          fetch(apiBase + "/api/commercefix/checkout", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              order_id: order.order_id,
+              return_url: window.location.origin + window.location.pathname + "?status=paid&order_id=" + encodeURIComponent(order.order_id),
+              cancel_url: window.location.origin + window.location.pathname + "?status=cancelled&order_id=" + encodeURIComponent(order.order_id)
+            })
+          })
+            .then(function (response) {
+              if (!response.ok) throw new Error("checkout_" + response.status);
+              return response.json();
+            })
+            .then(function (checkout) {
+              window.location.assign(checkout.checkout_url);
+            })
+            .catch(function () {
+              retry.removeAttribute("disabled");
+              retry.textContent = "Restart hosted checkout";
+              statusCopy.textContent = "Could not restart checkout. Return to the scanner or contact support with this order id.";
+            });
+        });
+      }
     })
     .catch(function () {
       statusCopy.textContent = "Could not read this order yet. Save the order id and contact support if it stays unavailable.";
@@ -291,7 +336,8 @@ ul { margin: 10px 0 0; padding-left: 20px; }
 table { width: 100%; margin-top: 12px; border-collapse: collapse; background: #fff; }
 td, th { padding: 10px; border: 1px solid #dfe6de; text-align: left; vertical-align: top; }
 code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; color: #173d30; }
-.button { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 0 12px; border-radius: 6px; background: #1f6b55; color: #fff; }
+.button { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 0 12px; border: 0; border-radius: 6px; background: #1f6b55; color: #fff; cursor: pointer; font-weight: 800; }
+.button:disabled { cursor: wait; opacity: 0.72; }
 .button.secondary { margin-left: 8px; background: #1d3d63; }
 .notice { margin-top: 14px; padding: 12px; border: 1px solid #d8c68f; border-radius: 8px; background: #fff9e9; color: #5f4b20; font-size: 14px; line-height: 1.55; }
 .statusPanel { margin-top: 16px; padding: 16px; border: 1px solid #b9c8c0; border-radius: 8px; background: #f7faf6; }
@@ -299,6 +345,7 @@ code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; co
 dl { display: grid; grid-template-columns: minmax(120px, 180px) 1fr; gap: 8px 12px; margin: 14px 0 0; }
 dt { color: #617168; font-weight: 800; }
 dd { margin: 0; color: #14201a; overflow-wrap: anywhere; }
+#status-fields:empty, #download-row:empty, #action-row:empty { display: none; }
 `;
 }
 

@@ -36,29 +36,25 @@ delivery_failed
 
 ## Frontend Checkout URLs
 
-The app expects hosted checkout URLs from environment variables:
+The app expects the CommerceFix backend API URL from environment variables:
 
 ```text
-VITE_REPAIR_LITE_CHECKOUT_URL
-VITE_REPAIR_PRO_CHECKOUT_URL
+VITE_COMMERCEFIX_API_BASE_URL
 ```
 
-If a URL is missing, the UI must not pretend payment started. It should show a missing checkout configuration status.
+The browser sends CSV text to `/api/commercefix/upload`, receives an `order_id`, then asks `/api/commercefix/checkout` for a PayPal hosted checkout URL.
 
-## PayPal Pending Reservation Mode
+If the API URL is missing or unavailable, the UI must not pretend payment started. It should show checkout unavailable and keep paid files locked.
 
-Until PayPal approval is complete, the UI must not show a fake checkout.
+## PayPal Hosted Checkout Mode
 
-Fallback behavior:
+PayPal approval is complete enough for live hosted checkout.
 
-1. User clicks `Reserve $19 Lite` or `Reserve $39 Pro`.
-2. The browser copies a short CommerceFix CSV Request brief to clipboard.
-3. The browser opens `checkout.html?mode=paypal_pending`.
-4. The user emails the CSV request with subject `CommerceFix CSV Request`.
-5. IMAP intake may create a pending order.
-6. Paid file generation remains locked until a verified payment event or manually confirmed payment exists.
-
-This mode captures demand without claiming that hosted payment is already available.
+1. User clicks `Checkout $19 Lite` or `Checkout $39 Pro`.
+2. The browser creates a pending order through the CommerceFix backend.
+3. The backend creates a PayPal order and returns `checkout_url`.
+4. The browser redirects to PayPal hosted checkout.
+5. Paid file generation remains locked until PayPal sends a verified capture webhook.
 
 ## Boundary
 
@@ -77,7 +73,7 @@ The frontend paywall is only an interface. Production protection requires server
 
 ## PayPal Automation Boundary
 
-PayPal is the planned payment provider. The automated flow must wait for a verified capture event, not a client-side redirect or approval screen.
+PayPal is the payment provider. The automated flow must wait for a verified capture event, not a client-side redirect or approval screen.
 
 Required server-only environment variables:
 
