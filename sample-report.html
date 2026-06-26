@@ -7,6 +7,7 @@
     <meta name="description" content="Preview the CommerceFix paid package: fixed_import_safe.csv, seo_patch_only.csv, error_report.xlsx, and before_after_preview.html." />
     <meta name="robots" content="index,follow" />
     <link rel="canonical" href="https://soup-rolls.github.io/commercefix-csv-repair/sample-report.html" />
+    <link rel="icon" type="image/svg+xml" href="/commercefix-csv-repair/favicon.svg" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="CommerceFix" />
     <meta property="og:title" content="Sample Repair Package | CommerceFix" />
@@ -35,7 +36,8 @@ ul { margin: 10px 0 0; padding-left: 20px; }
 table { width: 100%; margin-top: 12px; border-collapse: collapse; background: #fff; }
 td, th { padding: 10px; border: 1px solid #dfe6de; text-align: left; vertical-align: top; }
 code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; color: #173d30; }
-.button { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 0 12px; border-radius: 6px; background: #1f6b55; color: #fff; }
+.button { display: inline-flex; align-items: center; justify-content: center; min-height: 34px; padding: 0 12px; border: 0; border-radius: 6px; background: #1f6b55; color: #fff; cursor: pointer; font-weight: 800; }
+.button:disabled { cursor: wait; opacity: 0.72; }
 .button.secondary { margin-left: 8px; background: #1d3d63; }
 .notice { margin-top: 14px; padding: 12px; border: 1px solid #d8c68f; border-radius: 8px; background: #fff9e9; color: #5f4b20; font-size: 14px; line-height: 1.55; }
 .statusPanel { margin-top: 16px; padding: 16px; border: 1px solid #b9c8c0; border-radius: 8px; background: #f7faf6; }
@@ -43,6 +45,7 @@ code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace; co
 dl { display: grid; grid-template-columns: minmax(120px, 180px) 1fr; gap: 8px 12px; margin: 14px 0 0; }
 dt { color: #617168; font-weight: 800; }
 dd { margin: 0; color: #14201a; overflow-wrap: anywhere; }
+#status-fields:empty, #download-row:empty, #action-row:empty { display: none; }
 </style>
   </head>
   <body>

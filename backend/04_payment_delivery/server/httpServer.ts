@@ -10,6 +10,12 @@ import { createPayPalCheckout } from "./paypalWebhook";
 import type { CommerceFixPlan, PayPalWebhookHeaders } from "./automationTypes";
 
 const config = loadAutomationConfig();
+const PAID_FILES = [
+  "fixed_import_safe.csv",
+  "seo_patch_only.csv",
+  "error_report.xlsx",
+  "before_after_preview.html"
+];
 
 const server = createServer(async (request, response) => {
   try {
@@ -198,6 +204,16 @@ async function handleOrderStatus(url: URL, response: ServerResponse) {
   const downloadUrl = packageReady && !expired
     ? order.download_url ?? `${downloadBaseUrl().replace(/\/$/, "")}/${encodeURIComponent(order.order_id)}`
     : undefined;
+  const deliveryStatus = expired
+    ? "expired"
+    : order.delivered_at
+      ? "sent"
+      : packageReady
+        ? "ready"
+        : order.payment_status === "paid"
+          ? "generating"
+          : "locked";
+  const nextAction = nextActionFor(order.payment_status, packageReady, expired);
 
   return sendJson(response, 200, {
     business_id: "commercefix",
@@ -208,7 +224,7 @@ async function handleOrderStatus(url: URL, response: ServerResponse) {
     currency: order.currency,
     payment_status: order.payment_status,
     package_ready: packageReady,
-    delivery_status: order.delivered_at ? "sent" : packageReady ? "ready" : "pending",
+    delivery_status: deliveryStatus,
     original_file_name: order.original_file_name,
     created_at: order.created_at,
     paid_at: order.paid_at,
@@ -216,21 +232,36 @@ async function handleOrderStatus(url: URL, response: ServerResponse) {
     download_url: downloadUrl,
     download_expires_at: packageReady ? packageExpiresAt(order) : undefined,
     download_expired: expired,
-    files: packageReady ? [
-      "fixed_import_safe.csv",
-      "seo_patch_only.csv",
-      "error_report.xlsx",
-      "before_after_preview.html"
-    ] : undefined
+    expected_files: PAID_FILES,
+    files: packageReady ? PAID_FILES : undefined,
+    next_action: nextAction,
+    customer_visible_message: customerMessageFor(order.payment_status, packageReady, expired)
   });
 }
 
 async function handleFailures(response: ServerResponse) {
   const eventsDir = path.join(config.orderStorageDir, "events");
   try {
-    const names = await readdir(eventsDir);
-    const failed = names.filter((name) => name.endsWith("_delivery_failed.json")).slice(-50);
-    return sendJson(response, 200, { failures: failed });
+    const names = (await readdir(eventsDir))
+      .filter((name) => name.endsWith("_delivery_failed.json"))
+      .sort()
+      .slice(-50);
+    const failures = await Promise.all(names.map(async (name) => {
+      try {
+        const event = JSON.parse(await readFile(path.join(eventsDir, name), "utf8"));
+        return {
+          file: name,
+          created_at: event.created_at,
+          order_id: event.payload?.order_id,
+          scan_id: event.payload?.scan_id,
+          reason: event.payload?.reason,
+          customer_visible_message: event.payload?.customer_visible_message
+        };
+      } catch {
+        return { file: name, reason: "unreadable_failure_event" };
+      }
+    }));
+    return sendJson(response, 200, { failures });
   } catch {
     return sendJson(response, 200, { failures: [] });
   }
@@ -293,6 +324,24 @@ function isPackageExpired(order: { delivered_at?: string; paid_at?: string; crea
 
 function downloadBaseUrl() {
   return config.downloadBaseUrl ?? `${config.publicBaseUrl.replace(/\/$/, "")}/api/commercefix/download`;
+}
+
+function nextActionFor(paymentStatus: string, packageReady: boolean, expired: boolean) {
+  if (packageReady && !expired) return "download_package";
+  if (expired) return "contact_support";
+  if (paymentStatus === "paid") return "wait_for_generation";
+  if (paymentStatus === "pending" || paymentStatus === "failed") return "restart_checkout";
+  return "contact_support";
+}
+
+function customerMessageFor(paymentStatus: string, packageReady: boolean, expired: boolean) {
+  if (packageReady && !expired) return "Your repair package is ready to download.";
+  if (expired) return "Your secure download link has expired. Contact support with this order id.";
+  if (paymentStatus === "paid") return "Payment is confirmed. Repair package generation or email delivery is still in progress.";
+  if (paymentStatus === "pending") return "Payment is not confirmed yet. Paid repair files remain locked.";
+  if (paymentStatus === "failed") return "Payment was not completed. You can restart hosted checkout from this order.";
+  if (paymentStatus === "refunded") return "This order is marked refunded. Contact support if you still need files.";
+  return "Order status needs manual review.";
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
