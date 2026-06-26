@@ -10,4 +10,5 @@ Allow: /
 User-agent: PerplexityBot
 Allow: /
 
+Sitemap: https://soup-rolls.github.io/commercefix-csv-repair/sitemap-index.xml
 Sitemap: https://soup-rolls.github.io/commercefix-csv-repair/sitemap.xml
