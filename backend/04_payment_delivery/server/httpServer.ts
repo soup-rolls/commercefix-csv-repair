@@ -1,11 +1,11 @@
 import "./nodeModulePath";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { readFile, readdir } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadAutomationConfig } from "./automationConfig";
 import { createPendingOrder } from "./orderIntake";
-import { appendEvent, readOrder, writeOrder } from "./orderStore";
+import { appendEvent, readOrder, safeFileName, writeOrder } from "./orderStore";
 import { createPayPalCheckout } from "./paypalWebhook";
 import type { CommerceFixPlan, PayPalWebhookHeaders } from "./automationTypes";
 
@@ -54,6 +54,10 @@ const server = createServer(async (request, response) => {
       return await handleOrderStatus(url, response);
     }
 
+    if (request.method === "POST" && url.pathname === "/api/commercefix/track") {
+      return await handleTrackEvent(request, response);
+    }
+
     if (request.method === "POST" && url.pathname === "/api/commercefix/upload") {
       return await handleUpload(request, response);
     }
@@ -91,6 +95,37 @@ const server = createServer(async (request, response) => {
     });
   }
 });
+
+async function handleTrackEvent(request: IncomingMessage, response: ServerResponse) {
+  const body = await readJson<{
+    event?: string;
+    product?: string;
+    page_path?: string;
+    ts?: string;
+    [key: string]: unknown;
+  }>(request, 32 * 1024);
+
+  const eventName = typeof body.event === "string" ? body.event.slice(0, 80) : "unknown_event";
+  if (!eventName.startsWith("commercefix_")) {
+    return sendJson(response, 400, { error: "invalid_event" });
+  }
+
+  const event = {
+    business_id: "commercefix",
+    event_type: "site_event",
+    name: eventName,
+    created_at: new Date().toISOString(),
+    payload: sanitizeAnalyticsPayload(body)
+  };
+
+  const eventsDir = path.join(config.orderStorageDir, "events");
+  await mkdir(eventsDir, { recursive: true });
+  const stamp = event.created_at.replace(/[:.]/g, "-");
+  const fileName = `${stamp}_site_${safeFileName(eventName)}.json`;
+  await writeFile(path.join(eventsDir, fileName), `${JSON.stringify(event, null, 2)}\n`, "utf8");
+
+  return sendJson(response, 202, { ok: true });
+}
 
 async function handleUpload(request: IncomingMessage, response: ServerResponse) {
   const body = await readJson<{
@@ -332,6 +367,45 @@ function isAllowedOrigin(origin: string) {
 function sendJson(response: ServerResponse, status: number, payload: unknown) {
   response.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
   response.end(JSON.stringify(payload, null, 2));
+}
+
+function sanitizeAnalyticsPayload(input: Record<string, unknown>) {
+  const allowed = [
+    "event",
+    "product",
+    "page_path",
+    "ts",
+    "sample_loaded",
+    "row_count",
+    "scanned_rows",
+    "issue_count",
+    "import_risks",
+    "seo_gaps",
+    "image_issues",
+    "fixable_rows",
+    "blocked_rows",
+    "state",
+    "plan",
+    "payment_status",
+    "reason",
+    "tab",
+    "file_size"
+  ];
+
+  return Object.fromEntries(
+    allowed
+      .filter((key) => key in input)
+      .map((key) => [key, sanitizeAnalyticsValue(input[key])])
+      .filter(([, value]) => value !== undefined)
+  );
+}
+
+function sanitizeAnalyticsValue(value: unknown) {
+  if (typeof value === "string") return value.slice(0, 200);
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "boolean") return value;
+  if (value === null) return null;
+  return undefined;
 }
 
 function storageKind(input: string) {
