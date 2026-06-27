@@ -61,7 +61,31 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-description-tag-too-long/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-duplicate-handle-checker/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-duplicate-image-src/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-duplicate-meta-description/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-duplicate-seo-title/</loc>
     <lastmod>2026-06-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -91,6 +115,12 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-image-alt-text-missing/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-image-src-validator/</loc>
     <lastmod>2026-06-27</lastmod>
     <changefreq>weekly</changefreq>
@@ -115,13 +145,31 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-missing-meta-description/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-missing-required-field/</loc>
     <lastmod>2026-06-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-missing-seo-title/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-option1-name-missing/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-option1-value-missing/</loc>
     <lastmod>2026-06-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
@@ -140,6 +188,18 @@
   </url>
   <url>
     <loc>https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-seo-patch-generator/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-title-missing-fix/</loc>
+    <lastmod>2026-06-27</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-title-tag-too-long/</loc>
     <lastmod>2026-06-27</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
