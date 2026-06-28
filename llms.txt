@@ -15,6 +15,7 @@ Paid repair files:
 
 Core pages:
 - https://soup-rolls.github.io/commercefix-csv-repair/
+- https://soup-rolls.github.io/commercefix-csv-repair/error-library.html
 - https://soup-rolls.github.io/commercefix-csv-repair/sample-report.html
 - https://soup-rolls.github.io/commercefix-csv-repair/privacy.html
 - https://soup-rolls.github.io/commercefix-csv-repair/terms.html
