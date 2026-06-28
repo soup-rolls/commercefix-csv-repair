@@ -23,6 +23,7 @@ Core pages:
 
 Pages:
 - Matrixify Alternative for SEO CSV Repair | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/matrixify-alternative-for-seo-csv/
+- Matrixify CSV Preflight Checker | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/matrixify-csv-preflight-checker/
 - Shopify Bulk Meta Description CSV | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-bulk-meta-description-csv/
 - Shopify Bulk SEO Title Update CSV | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-bulk-seo-title-update-csv/
 - Shopify CSV Columns Shifted After Import | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-columns-shifted-after-import/

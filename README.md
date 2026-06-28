@@ -1,15 +1,27 @@
 # CommerceFix CSV Repair
 
-CommerceFix is a Shopify CSV Repair File Generator for store operators, VAs, migration helpers, and small agencies that need import-safe product CSV files before upload.
+CommerceFix is a Shopify CSV Repair File Generator for store operators, VAs, migration helpers, and small agencies that need a free CSV preflight before Shopify or Matrixify import.
 
 Live tool: https://soup-rolls.github.io/commercefix-csv-repair/
 
+Primary entry:
+
+https://soup-rolls.github.io/commercefix-csv-repair/#scan
+
 ## What CommerceFix Does
 
-- Scans a Shopify product CSV for import risks, SEO metadata gaps, image CSV issues, and variant field problems.
+- Scans a Shopify product CSV before Shopify or Matrixify import for import risks, SEO metadata gaps, image CSV issues, and variant field problems.
 - Shows a limited free preview: issue counts, categories, and five sample rows.
+- Lets users copy a compact scan summary for handoff, issue reports, or tool-directory submissions.
 - Generates paid repair-file packages after checkout.
 - Keeps the workflow file-in / file-out.
+
+## Use Cases
+
+- Before Matrixify import.
+- Before Shopify product CSV upload.
+- Before bulk SEO metafield patch work.
+- Before handing a supplier or migration CSV to an operator.
 
 ## Paid Repair Files
 
@@ -47,6 +59,7 @@ High-intent repair pages include:
 - Shopify CSV Option1 Name missing fix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-option1-name-missing/
 - Shopify CSV duplicate handle checker: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-duplicate-handle-checker/
 - Matrixify alternative for SEO CSV repair: https://soup-rolls.github.io/commercefix-csv-repair/matrixify-alternative-for-seo-csv/
+- Matrixify CSV preflight checker: https://soup-rolls.github.io/commercefix-csv-repair/matrixify-csv-preflight-checker/
 
 ## Search Files
 
