@@ -58,6 +58,10 @@ const server = createServer(async (request, response) => {
       return await handleTrackEvent(request, response);
     }
 
+    if (request.method === "GET" && url.pathname === "/api/commercefix/analytics-summary") {
+      return await handleAnalyticsSummary(response);
+    }
+
     if (request.method === "POST" && url.pathname === "/api/commercefix/upload") {
       return await handleUpload(request, response);
     }
@@ -125,6 +129,100 @@ async function handleTrackEvent(request: IncomingMessage, response: ServerRespon
   await writeFile(path.join(eventsDir, fileName), `${JSON.stringify(event, null, 2)}\n`, "utf8");
 
   return sendJson(response, 202, { ok: true });
+}
+
+async function handleAnalyticsSummary(response: ServerResponse) {
+  const eventsDir = path.join(config.orderStorageDir, "events");
+  const now = Date.now();
+  const byName: Record<string, number> = {};
+  const byPage: Record<string, number> = {};
+  const byDay: Record<string, number> = {};
+  let totalEvents = 0;
+  let lastEventAt: string | undefined;
+  let eventsLast24h = 0;
+  let eventsLast7d = 0;
+  let scanCompleted = 0;
+  let checkoutClicked = 0;
+  let summaryCopied = 0;
+
+  try {
+    const names = (await readdir(eventsDir))
+      .filter((name) => name.includes("_site_") && name.endsWith(".json"))
+      .sort();
+
+    for (const name of names) {
+      try {
+        const event = JSON.parse(await readFile(path.join(eventsDir, name), "utf8")) as {
+          event_type?: string;
+          name?: string;
+          created_at?: string;
+          payload?: { page_path?: string };
+        };
+        if (event.event_type !== "site_event" || !event.name || !event.created_at) continue;
+
+        const createdTime = Date.parse(event.created_at);
+        if (!Number.isFinite(createdTime)) continue;
+
+        totalEvents += 1;
+        lastEventAt = !lastEventAt || event.created_at > lastEventAt ? event.created_at : lastEventAt;
+        byName[event.name] = (byName[event.name] ?? 0) + 1;
+
+        const pagePath = normalizeAnalyticsPagePath(event.payload?.page_path);
+        byPage[pagePath] = (byPage[pagePath] ?? 0) + 1;
+
+        const day = event.created_at.slice(0, 10);
+        byDay[day] = (byDay[day] ?? 0) + 1;
+
+        const ageMs = now - createdTime;
+        if (ageMs <= 24 * 60 * 60 * 1000) eventsLast24h += 1;
+        if (ageMs <= 7 * 24 * 60 * 60 * 1000) eventsLast7d += 1;
+        if (event.name === "commercefix_free_scan_completed") scanCompleted += 1;
+        if (event.name === "commercefix_checkout_clicked") checkoutClicked += 1;
+        if (event.name === "commercefix_summary_copied") summaryCopied += 1;
+      } catch {
+        // Ignore malformed event snapshots. Analytics must not block operations.
+      }
+    }
+
+    return sendJson(response, 200, {
+      business_id: "commercefix",
+      generated_at: new Date().toISOString(),
+      source: "commercefix_site_event_ledger",
+      total_events: totalEvents,
+      events_last_24h: eventsLast24h,
+      events_last_7d: eventsLast7d,
+      last_event_at: lastEventAt,
+      funnel: {
+        app_loaded: byName.commercefix_app_loaded ?? 0,
+        free_scan_completed: scanCompleted,
+        checkout_clicked: checkoutClicked,
+        summary_copied: summaryCopied
+      },
+      by_event: sortRecordDesc(byName),
+      by_page: sortRecordDesc(byPage),
+      by_day: Object.fromEntries(Object.entries(byDay).sort(([a], [b]) => a.localeCompare(b))),
+      privacy_note: "Aggregate counts only. No CSV content, emails, order IDs, payment data, IP addresses, cookies, or user agents are returned."
+    });
+  } catch {
+    return sendJson(response, 200, {
+      business_id: "commercefix",
+      generated_at: new Date().toISOString(),
+      source: "commercefix_site_event_ledger",
+      total_events: 0,
+      events_last_24h: 0,
+      events_last_7d: 0,
+      funnel: {
+        app_loaded: 0,
+        free_scan_completed: 0,
+        checkout_clicked: 0,
+        summary_copied: 0
+      },
+      by_event: {},
+      by_page: {},
+      by_day: {},
+      privacy_note: "Aggregate counts only. No CSV content, emails, order IDs, payment data, IP addresses, cookies, or user agents are returned."
+    });
+  }
 }
 
 async function handleUpload(request: IncomingMessage, response: ServerResponse) {
@@ -406,6 +504,18 @@ function sanitizeAnalyticsValue(value: unknown) {
   if (typeof value === "boolean") return value;
   if (value === null) return null;
   return undefined;
+}
+
+function normalizeAnalyticsPagePath(value: unknown) {
+  if (typeof value !== "string" || !value.trim()) return "unknown";
+  const clean = value.trim().slice(0, 120);
+  return clean.startsWith("/") ? clean : `/${clean}`;
+}
+
+function sortRecordDesc(record: Record<string, number>) {
+  return Object.fromEntries(
+    Object.entries(record).sort(([, a], [, b]) => b - a)
+  );
 }
 
 function storageKind(input: string) {
