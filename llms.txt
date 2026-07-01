@@ -63,3 +63,40 @@ Pages:
 - Shopify Product CSV Validator and Repair Files | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-product-csv-validator/
 - Shopify SEO Title Length Checker | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-seo-title-length-checker/
 - Shopify title_tag Metafield CSV Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-title-tag-metafield-csv/
+- Shopify CSV Import Failed Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-import-failed-fix/
+- Shopify Product CSV Import Error | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-product-csv-import-error/
+- Shopify CSV Missing Handle Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-missing-handle/
+- Shopify CSV Option1 Name Required Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-option1-name-required/
+- Shopify CSV Invalid Image Src Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-invalid-image-src/
+- Shopify CSV Broken Image URL Check | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-broken-image-url/
+- Shopify CSV Missing Title Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-missing-title/
+- Shopify CSV Missing Image Alt Text Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-missing-image-alt-text/
+- Shopify CSV title_tag Metafield Missing | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-metafield-title-tag-missing/
+- Shopify CSV description_tag Metafield Missing | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-metafield-description-tag-missing/
+- Shopify CSV Bulk Edit SEO Title | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-bulk-edit-seo-title/
+- Shopify CSV Bulk Edit Meta Description | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-bulk-edit-meta-description/
+- Fix Shopify CSV Before Import | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-fix-before-import/
+- Shopify CSV Repair Tool | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-repair-tool/
+- Shopify CSV Validator With Repair Files | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-validator-repair-files/
+- Matrixify CSV Import Error Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/matrixify-csv-import-error/
+- Matrixify Shopify CSV Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/matrixify-shopify-csv-fix/
+- Matrixify SEO CSV Alternative | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/matrixify-seo-csv-alternative/
+- Shopify CSV Product Handle Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-product-handle-fix/
+- Shopify CSV title_tag Bulk Upload Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-title-tag-bulk-upload/
+- Shopify CSV description_tag Bulk Upload Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-description-tag-bulk-upload/
+- Shopify CSV Variant Option Missing Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-variant-option-missing/
+- Shopify CSV Default Title Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-default-title-fix/
+- Shopify CSV Missing Option Value Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-missing-option-value/
+- Shopify CSV Import Preview Tool | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-import-preview/
+- Shopify CSV Error Report Generator | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-error-report/
+- Shopify CSV Before After Preview | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-before-after-preview/
+- Shopify fixed_import_safe.csv Generator | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-fixed-import-safe/
+- Shopify SEO Patch CSV File Generator | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-seo-patch-csv-file/
+- Shopify CSV CDN Image URL Check | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-cdn-image-url-check/
+- Shopify CSV Comma in Description Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-comma-in-description-fix/
+- Shopify CSV Newline in Description Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-newline-in-description-fix/
+- Shopify CSV Header Template Check | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-header-template-check/
+- Shopify CSV SEO Fields Missing Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-seo-fields-missing/
+- Shopify CSV Meta Title Description Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-meta-title-description-fix/
+- Shopify CSV Image Import Error Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-image-import-error/
+- Shopify CSV Row Error Fix | CommerceFix: https://soup-rolls.github.io/commercefix-csv-repair/shopify-csv-row-error-fix/
