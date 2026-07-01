@@ -198,6 +198,7 @@ async function handleAnalyticsSummary(response: ServerResponse) {
         checkout_clicked: checkoutClicked,
         summary_copied: summaryCopied
       },
+      storage: analyticsStorageSnapshot(),
       by_event: sortRecordDesc(byName),
       by_page: sortRecordDesc(byPage),
       by_day: Object.fromEntries(Object.entries(byDay).sort(([a], [b]) => a.localeCompare(b))),
@@ -217,6 +218,7 @@ async function handleAnalyticsSummary(response: ServerResponse) {
         checkout_clicked: 0,
         summary_copied: 0
       },
+      storage: analyticsStorageSnapshot(),
       by_event: {},
       by_page: {},
       by_day: {},
@@ -523,6 +525,17 @@ function storageKind(input: string) {
   if (input.startsWith("/var/data")) return "render_disk";
   if (/^[A-Za-z]:[\\/]/.test(input)) return "local_windows";
   return "custom";
+}
+
+function analyticsStorageSnapshot() {
+  const kind = storageKind(config.orderStorageDir);
+  return {
+    kind,
+    persistent: kind === "render_disk" || kind === "local_windows" || kind === "custom",
+    warning: kind === "render_tmp"
+      ? "Analytics events may reset after Render restarts or redeploys because the service is using temporary storage."
+      : undefined
+  };
 }
 
 function packageExpiresAt(order: { delivered_at?: string; paid_at?: string; created_at: string }) {
